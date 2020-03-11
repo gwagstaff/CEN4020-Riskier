@@ -12,9 +12,9 @@
 #### Current Sprint Status:
 Sprint Number | Start Date | End Date | Status
 --- | --- | --- | ---
-1 | TBD | TBD | Not Started
-2 | TBD | TBD | Not Started
-3 | TBD | TBD | Not Started
+1 | 2/1 | 3/13 | In Progress
+2 | 3/13 | 4/3 | Starting Soon
+3 | 4/3 | 4/17 | Not Started
 
 ### Git Layout
 
@@ -24,10 +24,17 @@ Sprint Number | Start Date | End Date | Status
 	+ May be located in documentation branch
 
 
-###### ./project
- 	+ contains main code within project
-	+ trunk considered here
+###### ./Riskier
+ 	+ contains main game code within project
 
+###### ./ideas
+	+ contains ideas that could be implemented within the Project
+
+###### ./game_info
+	+ other important information relevant to game
+
+### Task Chart w/h Status:
+ + [Task Chart](https://docs.google.com/spreadsheets/d/1Kx3daVo6hz-Cw3RXUUkIHUt-ElD00yISQPLD0LtFD3w/edit?usp=sharing)
 
 ### Current GamePlay Rules & Usage:
- + [Wiki](https://github.com/wesleywatkins/CEN4020-Project/wiki)
+ + [Rules](./game_info/riskier_rules.docx)
