@@ -72,6 +72,10 @@ class BattleScreen(GameState):
                                     ['Attack', 'Defend', 'Move Troops', 'End Turn', 'Flee'], font_size=26)
         self.menu_bar = MenuBar(0, 0, pygame.display.get_surface().get_width(), 40, middle='Select Move')
 
+        self.bg = pygame.image.load(os.path.join('assets', 'background1.png')).convert_alpha()
+        self.bg = pygame.transform.scale(self.bg, (pygame.display.get_surface().get_width(),
+                                                   pygame.display.get_surface().get_height()))
+
 
         # flags
         self.turn = 0  # 0 == user, 1 == ai
@@ -190,6 +194,8 @@ class BattleScreen(GameState):
     def render(self, surface):
         # fill screen
         surface.fill(pygame.Color("white"))
+
+        surface.blit(self.bg, (0, 0))
         # draw gui elements
         self.menu_bar.render(surface)
         pygame.draw.line(surface, pygame.Color("black"), (0, 40), (pygame.display.get_surface().get_width(), 40))
@@ -321,7 +327,7 @@ class BattleScreen(GameState):
             self.persist['difficulty'] = persistent['difficulty']
 
             ###########Music#######
-            self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'circusOfFreaks.wav'))
+            self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'sot.wav'))
             self.bg_player = pygame.mixer.music.play(-1)
             #######################
         except KeyError as e:
