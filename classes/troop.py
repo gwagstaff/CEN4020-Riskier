@@ -15,6 +15,8 @@ class Troop:
         self.health = 100  # troop's health
         self.ai = ai  # flag for specifying if troop is ai
         self.type = t  # 0 = default, 1 = medic, 2 = sniper
+        if self.type == 2:
+            self.health = 75
         self.default_stats()  # default all troops state
         # read in sprite image for troop
         # if ai, flip the image
@@ -54,20 +56,42 @@ class Troop:
     # add attack boost to troop
     def attack_boost(self):
         self.attack += 10
+        if self.type == 2:
+            self.attack += 10
+            self.defense = 0
+        if self.type == 0 and self.attack > 40:
+            self.attack = 40
+        elif self.type == 1 and self.attack > 30:
+            self.attack = 30
+        elif self.type == 2 and self.attack > 70:
+            self.attack = 70
 
     # add defense boost to troop
     def defense_boost(self):
         self.defense += 10
+        if self.type == 2:
+            self.attack += 10
+            self.defense -= 5
+        if self.type == 0 and self.defense > 40:
+            self.defense = 40
+        elif self.type == 1 and self.defense > 20:
+            self.defense = 30
+        elif self.type == 2 and self.defense > 10:
+            self.defense = 20
 
     # add healing property
     def heal(self,num):
         self.health += num
         if self.health > 100:
             self.health = 100
+        if self.type == 2 and self.health > 75:
+            self.health = 75
 
     # set stats to default values
     def default_stats(self):
         self.attack = 20
+        if self.type == 2:
+            self.attack = 10
         self.defense = 10
 
     # set pos to draw troop
