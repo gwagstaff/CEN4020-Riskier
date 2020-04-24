@@ -40,7 +40,7 @@ class SplashScreen(GameState):
             self.quit = True
         elif self.menu.get_event(event) == 'Start Game':
             self.persist_state()
-            self.bg_player = pygame.mixer.music.stop()
+            self.bg_player = pygame.mixer.music.fadeout(2000)
             self.done = True
         elif self.menu.get_event(event) == 'Options':
             self.menu.set_title('Difficulty')

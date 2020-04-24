@@ -23,6 +23,7 @@ except ImportError as err:
 
 # main game function
 if __name__ == "__main__":
+    pygame.mixer.init()
     pygame.init()  # initialize pygame
     screen = pygame.display.set_mode((1280, 720))  # set window size
     pygame.display.set_caption("Riskier")  # set window captions

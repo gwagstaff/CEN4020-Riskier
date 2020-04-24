@@ -13,7 +13,6 @@ try:
     from components.menubar import MenuBar
     from gui.circlelabel import CircleLabel
     from scenes.gamestate import GameState
-    from pygame import mixer
 except ImportError as err:
     print("Couldn't load module. %s" % err)
     sys.exit(2)
@@ -163,7 +162,7 @@ class GameplayScreen(GameState):
                     self.player.move_troops(self.moving_temp, region)
                 else:
                     if str(self.moving_temp) != self.player.home_region:
-                        self.bg_player = pygame.mixer.music.stop()
+                        self.bg_player = pygame.mixer.music.fadeout(2000)
                         self.persist_state()
                         self.next_state = "BATTLE"
                         self.persist['ai_region'] = region

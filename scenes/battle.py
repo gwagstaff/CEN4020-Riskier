@@ -31,11 +31,6 @@ class Board(object):
         self.bottomleft = (int(self.x - self.size / 4), int(self.y + self.size / 4))
         self.bottomright = (int(self.x + self.size / 4), int(self.y + self.size / 4))
 
-        ###########Music#######
-        self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'sot.wav'))
-        self.bg_player = pygame.mixer.music.play(-1)
-        #######################
-
 
     def render(self, surface):
         pygame.draw.line(surface, pygame.Color("black"), self.top, self.right)
@@ -158,7 +153,7 @@ class BattleScreen(GameState):
         # FLEE button
         elif self.turn == 0 and self.action_bar.get_event(event) == 'Flee':
             self.fleeing = True
-            self.bg_player = pygame.mixer.music.stop()
+            self.bg_player = pygame.mixer.music.fadeout(2000)
             self.persist_state()
             self.done = True
 
@@ -323,6 +318,11 @@ class BattleScreen(GameState):
                                   persistent['new_round']]
             self.flee = persistent['flee']
             self.persist['difficulty'] = persistent['difficulty']
+
+            ###########Music#######
+            self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'circusOfFreaks.wav'))
+            self.bg_player = pygame.mixer.music.play(-1)
+            #######################
         except KeyError as e:
             print(e)
             sys.exit(1)
