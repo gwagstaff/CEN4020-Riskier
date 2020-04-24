@@ -10,15 +10,24 @@ except ImportError as err:
 
 class Troop:
 
-    def __init__(self, x=0, y=0, ai=False):
+    def __init__(self, x=0, y=0, ai=False, t=0):
         self.x, self.y = x, y  # position to draw troop
         self.health = 100  # troop's health
         self.ai = ai  # flag for specifying if troop is ai
+        self.type = t  # 0 = default, 1 = medic, 2 = sniper
         self.default_stats()  # default all troops state
         # read in sprite image for troop
         # if ai, flip the image
-        if self.ai:
+        if self.ai and self.type == 0:
+            self.image = pygame.transform.flip(pygame.image.load(os.path.join('assets', 'ai_commando.png')), True, False)
+        elif self.ai and self.type == 1:
+            self.image = pygame.transform.flip(pygame.image.load(os.path.join('assets', 'ai_medic.png')), True, False)
+        elif self.ai and self.type == 2:
             self.image = pygame.transform.flip(pygame.image.load(os.path.join('assets', 'ai_soldier.png')), True, False)
+        elif not self.ai and self.type == 0:
+            self.image = pygame.image.load(os.path.join('assets', 'player_commando.png'))
+        elif not self.ai and self.type == 1:
+            self.image = pygame.image.load(os.path.join('assets', 'player_medic.png'))
         else:
             self.image = pygame.image.load(os.path.join('assets', 'player_soldier.png'))
         # rectangle surrounding troop (useful for detecting clicks)
@@ -49,6 +58,12 @@ class Troop:
     # add defense boost to troop
     def defense_boost(self):
         self.defense += 10
+
+    # add healing property
+    def heal(self,num):
+        self.health += num
+        if self.health > 100:
+            self.health = 100
 
     # set stats to default values
     def default_stats(self):

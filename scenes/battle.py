@@ -92,6 +92,11 @@ class BattleScreen(GameState):
                 self.attacking_temp = troop
             elif self.defending:
                 self.player_troops[troop].defense_boost()
+                if self.player_troops[troop].type == 1:
+                    self.player_troops[len(self.player_troops)-1].heal(10)
+                    self.player_troops[len(self.player_troops)-2].heal(10)
+                    self.player_troops[len(self.player_troops)-3].heal(10)
+                    self.player_troops[troop].heal(-10)
                 self.defending = False
                 self.moves_left -= 1
             elif self.moving and self.moving_temp is None:
@@ -243,8 +248,14 @@ class BattleScreen(GameState):
             for (i, troop) in enumerate(reversed(current)):
                 if i == 0:
                     troop.attack_boost()
-                if i == 1 and i == 2:
+                if i == 1 or i == 2:
                     troop.defense_boost()
+                    if troop.type == 1 and i == 1:
+                        current[len(current)-1].heal(5)
+                        current[len(current)-3].heal(5)
+                    elif troop.type == 1 and i == 2:
+                        current[len(current)-1].heal(5)
+                        current[len(current)-2].heal(5)
                 if i == 3:
                     break
 
@@ -310,10 +321,18 @@ class BattleScreen(GameState):
         # read in troops
         self.player_troops = []
         self.ai_troops = []
+        self.soldier_type = 0
         for troop in range(self.player.troops[str(self.player_region)]):
-            self.player_troops.append(Troop())
+            self.player_troops.append(Troop(t=self.soldier_type))
+            self.soldier_type = self.soldier_type + 1
+            if self.soldier_type > 2:
+                self.soldier_type = 0
+        self.soldier_type = 0
         for troop in range(self.ai.troops[str(self.ai_region)]):
-            self.ai_troops.append(Troop(ai=True))
+            self.ai_troops.append(Troop(ai=True, t=self.soldier_type))
+            self.soldier_type = self.soldier_type + 1
+            if self.soldier_type > 2:
+                self.soldier_type = 0
 
     def distribute_troops(self):
         # PLAYER attacked AI region
