@@ -282,6 +282,11 @@ class GameplayScreen(GameState):
             self.player = persistent['player']
             self.ai = persistent['ai']
             self.difficulty = persistent['difficulty']
+
+            ###########Music#######
+            self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'kalimbaRelaxation.wav'))
+            self.bg_player = pygame.mixer.music.play(-1)
+            #######################
         except KeyError as e:
             print(e)
             sys.exit(1)

@@ -183,6 +183,7 @@ class BattleScreen(GameState):
         self.update_menu_bar()
         # check for battle over
         if len(self.player_troops) < 1 or len(self.ai_troops) < 1:
+            self.bg_player = pygame.mixer.music.fadeout(2000)
             self.done = True
             self.persist_state()
 
