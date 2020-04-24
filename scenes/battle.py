@@ -97,10 +97,10 @@ class BattleScreen(GameState):
             elif self.defending:
                 self.player_troops[troop].defense_boost()
                 if self.player_troops[troop].type == 1:
+                    self.player_troops[troop].heal(-10)
                     self.player_troops[len(self.player_troops)-1].heal(10)
                     self.player_troops[len(self.player_troops)-2].heal(10)
                     self.player_troops[len(self.player_troops)-3].heal(10)
-                    self.player_troops[troop].heal(-10)
                 self.defending = False
                 self.moves_left -= 1
             elif self.moving and self.moving_temp is None:
