@@ -10,6 +10,7 @@ try:
     from classes.player import Player
     from components.actionbar import ActionBar
     from components.board import Board
+    from components.menu import Menu
     from components.menubar import MenuBar
     from gui.circlelabel import CircleLabel
     from scenes.gamestate import GameState
@@ -38,10 +39,11 @@ class GameplayScreen(GameState):
         self.action_bar = ActionBar(0, pygame.display.get_surface().get_height() - 80,
                                     pygame.display.get_surface().get_width(), 80,
                                     ['Place Troops', 'Move Troops', 'End Turn'])
-
-
-
-
+        # setup pause menu
+        self.menu = Menu(w=300, h=400)
+        self.menu.set_pos((pygame.display.get_surface().get_width() / 2, pygame.display.get_surface().get_height() / 2))
+        self.menu.set_title('Paused')
+        self.menu.set_buttons(['Continue', 'Quit Game'])
         # flags
         self.difficulty = 0
         self.turn = 0
@@ -51,15 +53,20 @@ class GameplayScreen(GameState):
         self.placing_troops = False
         self.moving_troops = False
         self.moving_temp = None
+        self.paused = False
 
     def get_event(self, event):
         # Handle closing the game
         if event.type == pygame.QUIT:
             self.quit = True
-        # REMOVE LATER: Go to battle screen
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_b:
-            self.done = True
         # Handle clicking "PLACE TROOPS"
+        elif event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+            self.paused = not self.paused
+        elif self.paused:
+            if self.menu.get_event(event) == 'Continue':
+                self.paused = False
+            elif self.menu.get_event(event) == 'Quit Game':
+                sys.exit(0)
         elif self.turn == 0 and self.action_bar.get_event(event) == 'Place Troops':
             self.moving_troops = False
             self.moving_temp = None
@@ -84,6 +91,10 @@ class GameplayScreen(GameState):
             self.place_troops_in_region(event)
 
     def update(self, dt):
+        # paused
+        if self.paused:
+            self.menu.update()
+            return
         # update player and ai
         self.player.update()
         self.ai.update()
@@ -125,6 +136,9 @@ class GameplayScreen(GameState):
         self.menu_bar.render(surface)
         # draw regions
         self.draw_labels(surface)
+        # draw pause menu
+        if self.paused:
+            self.menu.render(surface)
 
     def get_clicked_region(self, event):
         pos = event.pos
@@ -162,7 +176,6 @@ class GameplayScreen(GameState):
                     self.player.move_troops(self.moving_temp, region)
                 else:
                     if str(self.moving_temp) != self.player.home_region:
-                        self.bg_player = pygame.mixer.music.fadeout(2000)
                         self.persist_state()
                         self.next_state = "BATTLE"
                         self.persist['ai_region'] = region
@@ -222,7 +235,6 @@ class GameplayScreen(GameState):
                     if str(to_region) in self.player.troops.keys():
                         if str(from_region) == self.ai.home_region:
                             return
-                        self.bg_player = pygame.mixer.music.stop()
                         self.persist_state()
                         self.next_state = "BATTLE"
                         self.persist['ai_region'] = from_region
@@ -282,11 +294,9 @@ class GameplayScreen(GameState):
             self.player = persistent['player']
             self.ai = persistent['ai']
             self.difficulty = persistent['difficulty']
-
-            ###########Music#######
-            self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'kalimbaRelaxation.wav'))
-            self.bg_player = pygame.mixer.music.play(-1)
-            #######################
+            pygame.mixer.music.fadeout(2000)
+            pygame.mixer.music.load(os.path.join('audio', 'kalimbaRelaxation.wav'))
+            pygame.mixer.music.play(-1)
         except KeyError as e:
             print(e)
             sys.exit(1)

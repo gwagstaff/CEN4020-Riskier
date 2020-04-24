@@ -7,6 +7,7 @@ try:
     import os
     from classes.troop import Troop
     from components.actionbar import ActionBar
+    from components.menu import Menu
     from components.menubar import MenuBar
     from scenes.gamestate import GameState
 except ImportError as err:
@@ -30,7 +31,6 @@ class Board(object):
         self.topright = (int(self.x + self.size / 4), int(self.y - self.size / 4))
         self.bottomleft = (int(self.x - self.size / 4), int(self.y + self.size / 4))
         self.bottomright = (int(self.x + self.size / 4), int(self.y + self.size / 4))
-
 
     def render(self, surface):
         pygame.draw.line(surface, pygame.Color("black"), self.top, self.right)
@@ -71,12 +71,15 @@ class BattleScreen(GameState):
                                     pygame.display.get_surface().get_width(), 120,
                                     ['Attack', 'Defend', 'Move Troops', 'End Turn', 'Flee'], font_size=26)
         self.menu_bar = MenuBar(0, 0, pygame.display.get_surface().get_width(), 40, middle='Select Move')
-
+        # battle background
         self.bg = pygame.image.load(os.path.join('assets', 'background1.png')).convert_alpha()
         self.bg = pygame.transform.scale(self.bg, (pygame.display.get_surface().get_width(),
                                                    pygame.display.get_surface().get_height()))
-
-
+        # setup pause menu
+        self.menu = Menu(w=300, h=400)
+        self.menu.set_pos((pygame.display.get_surface().get_width() / 2, pygame.display.get_surface().get_height() / 2))
+        self.menu.set_title('Paused')
+        self.menu.set_buttons(['Continue', 'Quit Game'])
         # flags
         self.turn = 0  # 0 == user, 1 == ai
         self.new_round = True  # flag for determining new rounds
@@ -89,10 +92,23 @@ class BattleScreen(GameState):
         self.moving = False
         self.moving_temp = None
         self.fleeing = False
+        self.paused = False
+        # audio channels
+        self.curr_channel = 0
+        self.channels = 8
 
     def get_event(self, event):
         if event.type == pygame.QUIT:
             self.quit = True
+        # Handle clicking "PLACE TROOPS"
+        elif event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+            self.paused = not self.paused
+        elif self.paused:
+            if self.menu.get_event(event) == 'Continue':
+                self.paused = False
+            elif self.menu.get_event(event) == 'Quit Game':
+                sys.exit(0)
+            return
         # check for player troop clicks
         if self.turn == 0 and self.check_player_troop_clicks(event) is not None:
             troop = self.check_player_troop_clicks(event)
@@ -157,11 +173,14 @@ class BattleScreen(GameState):
         # FLEE button
         elif self.turn == 0 and self.action_bar.get_event(event) == 'Flee':
             self.fleeing = True
-            self.bg_player = pygame.mixer.music.fadeout(2000)
             self.persist_state()
             self.done = True
 
     def update(self, dt):
+        # check if paused
+        if self.paused:
+            self.menu.update()
+            return
         # new round
         if self.new_round:
             self.action_bar.enable_all()
@@ -194,7 +213,7 @@ class BattleScreen(GameState):
     def render(self, surface):
         # fill screen
         surface.fill(pygame.Color("white"))
-
+        # background
         surface.blit(self.bg, (0, 0))
         # draw gui elements
         self.menu_bar.render(surface)
@@ -204,6 +223,9 @@ class BattleScreen(GameState):
                          (pygame.display.get_surface().get_width(), pygame.display.get_surface().get_height() - 120))
         # draw troops
         self.draw_troops(surface)
+        # draw paused menu
+        if self.paused:
+            self.menu.render(surface)
 
     def update_troops(self):
         for troop in self.player_troops:
@@ -247,6 +269,10 @@ class BattleScreen(GameState):
         return None
 
     def attack(self, troop1, troop2):
+        # gunshot sound effect
+        pygame.mixer.Channel(self.curr_channel).play(pygame.mixer.Sound(os.path.join('audio', 'gunshot.wav')))
+        self.curr_channel = self.curr_channel + 1 if self.curr_channel < 7 else 0
+        # deal damage
         if self.turn == 0:
             self.ai_troops[troop2].health -= self.player_troops[troop1].attack - (
                         self.player_troops[troop1].attack * (self.ai_troops[troop2].defense / 100))
@@ -325,11 +351,6 @@ class BattleScreen(GameState):
                                   persistent['new_round']]
             self.flee = persistent['flee']
             self.persist['difficulty'] = persistent['difficulty']
-
-            ###########Music#######
-            self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'sot.wav'))
-            self.bg_player = pygame.mixer.music.play(-1)
-            #######################
         except KeyError as e:
             print(e)
             sys.exit(1)
@@ -350,6 +371,9 @@ class BattleScreen(GameState):
             self.soldier_type = self.soldier_type + 1
             if self.soldier_type > 2:
                 self.soldier_type = 0
+        pygame.mixer.music.fadeout(2000)
+        pygame.mixer.music.load(os.path.join('audio', 'sot.wav'))
+        pygame.mixer.music.play(-1)
 
     def distribute_troops(self):
         # PLAYER attacked AI region

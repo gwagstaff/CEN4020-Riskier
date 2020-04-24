@@ -9,6 +9,7 @@ try:
     from classes.player import Player
     from components.actionbar import ActionBar
     from components.board import Board
+    from components.menu import Menu
     from components.menubar import MenuBar
     from gui.circlelabel import CircleLabel
     from scenes.gamestate import GameState
@@ -37,16 +38,27 @@ class InitialScreen(GameState):
         # flags
         self.user_choosing = True
         self.ai_choosing = False
+        self.paused = False
         # timer for basic things
         self.end_time = time.time()
-
+        # setup pause menu
+        self.menu = Menu(w=300, h=400)
+        self.menu.set_pos((pygame.display.get_surface().get_width() / 2, pygame.display.get_surface().get_height() / 2))
+        self.menu.set_title('Paused')
+        self.menu.set_buttons(['Continue', 'Quit Game'])
 
     def get_event(self, event):
+        if self.paused and self.menu.get_event(event) == 'Continue':
+            self.paused = False
+        elif self.paused and self.menu.get_event(event) == 'Quit Game':
+            sys.exit(0)
         # close window
-        if event.type == pygame.QUIT:
+        elif event.type == pygame.QUIT:
             self.quit = True
+        elif event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+            self.paused = not self.paused
         # choose region
-        if self.user_choosing and event.type == pygame.MOUSEBUTTONDOWN:
+        elif not self.paused and self.user_choosing and event.type == pygame.MOUSEBUTTONDOWN:
             # get region and set player troops
             region = self.get_clicked_region(event)
             self.player.troops.update({str(region): 3})
@@ -58,6 +70,9 @@ class InitialScreen(GameState):
             self.end_time = time.time() + 2
 
     def update(self, dt):
+        if self.paused:
+            self.menu.update()
+            return
         # handle ai choosing a region
         if self.ai_choosing and time.time() > self.end_time:
             # randomly select ai region
@@ -85,6 +100,9 @@ class InitialScreen(GameState):
         self.menu_bar.render(surface)
         # draw regions
         self.draw_regions(surface)
+        # pause menu
+        if self.paused:
+            self.menu.render(surface)
 
     def update_menu_bar(self):
         if self.user_choosing:
@@ -133,11 +151,6 @@ class InitialScreen(GameState):
 
     def startup(self, persistent):
         self.persist['difficulty'] = persistent['difficulty']
-
-        ###########Music#######
-        self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'kalimbaRelaxation.wav'))
-        self.bg_player = pygame.mixer.music.play(-1)
-        #######################
 
     def persist_state(self):
         self.persist['player'] = self.player
