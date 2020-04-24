@@ -3,8 +3,7 @@ try:
     import os
     import pygame
     import sys
-    from gui.button import RoundedRect
-    from gui.label import Label
+    from components.menu import Menu
     from scenes.gamestate import GameState
 except ImportError as err:
     print("Couldn't load module. %s" % err)
@@ -23,26 +22,27 @@ class DefeatScreen(GameState):
         self.bg_rect2 = self.bg.get_rect()
         self.bg1_x, self.bg2_x = 0, -self.bg_rect.width
         self.scroll_speed = 0.05
-        self.menu_rect = RoundedRect(pygame.Rect(0, 0, 400, 500))
-        self.menu_rect.rect.center = (pygame.display.get_surface().get_width()/2,
-                                      pygame.display.get_surface().get_height()/2)
-        self.title = Label("Defeat!")
-        self.title.set_pos((pygame.display.get_surface().get_width() / 2,
-                            pygame.display.get_surface().get_height() * 0.5))
+        # set up menu
+        self.menu = Menu(w=400, h=500)
+        self.menu.set_pos((pygame.display.get_surface().get_width() / 2, pygame.display.get_surface().get_height() / 2))
+        self.menu.set_title('Defeat!')
+        self.menu.set_buttons(['Close Game'])
 
     def get_event(self, event):
         if event.type == pygame.QUIT:
             self.quit = True
+        if self.menu.get_event(event) == 'Close Game':
+            sys.exit(0)
 
     def update(self, dt):
         self.scroll_background(dt)
+        self.menu.update()
 
     def render(self, surface):
         surface.fill(pygame.Color("dodgerblue"))
         surface.blit(self.bg, self.bg_rect)
         surface.blit(self.bg, self.bg_rect2)
-        self.menu_rect.render(surface)
-        self.title.render(surface)
+        self.menu.render(surface)
 
     def scroll_background(self, dt):
         distance = self.scroll_speed * dt
