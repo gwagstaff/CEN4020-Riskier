@@ -14,6 +14,8 @@ try:
     from scenes.battle import BattleScreen
     from scenes.defeat import DefeatScreen
     from scenes.victory import VictoryScreen
+
+
 except ImportError as err:
     print("Couldn't load module. %s" % err)
     sys.exit(2)
@@ -24,6 +26,7 @@ if __name__ == "__main__":
     pygame.init()  # initialize pygame
     screen = pygame.display.set_mode((1280, 720))  # set window size
     pygame.display.set_caption("Riskier")  # set window captions
+
     # create dictionary of states
     states = {"SPLASH": SplashScreen(),
               "INITIAL": InitialScreen(),
@@ -32,6 +35,7 @@ if __name__ == "__main__":
               "DEFEAT": DefeatScreen(),
               "VICTORY": VictoryScreen()}
     game = Game(screen, states, "SPLASH")  # Initialize Game object
+
     game.run()  # start game
     pygame.quit()  # after game has finished running, quit pygame
     sys.exit()  # exit the program

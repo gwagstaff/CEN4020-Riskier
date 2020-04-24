@@ -3,6 +3,7 @@ try:
     import os
     import pygame
     import sys
+    from pygame import mixer
     from components.menu import Menu
     from scenes.gamestate import GameState
 except ImportError as err:
@@ -22,6 +23,12 @@ class SplashScreen(GameState):
         self.bg_rect2 = self.bg.get_rect()
         self.bg1_x, self.bg2_x = 0, -self.bg_rect.width
         self.scroll_speed = 0.05
+
+        ###########Music#######
+        self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'circusOfFreaks.wav'))
+        self.bg_player = pygame.mixer.music.play(-1)
+        #######################
+
         # set up menu
         self.menu = Menu(w=400, h=500)
         self.menu.set_pos((pygame.display.get_surface().get_width()/2, pygame.display.get_surface().get_height()/2))
@@ -33,6 +40,7 @@ class SplashScreen(GameState):
             self.quit = True
         elif self.menu.get_event(event) == 'Start Game':
             self.persist_state()
+            self.bg_player = pygame.mixer.music.stop()
             self.done = True
         elif self.menu.get_event(event) == 'Options':
             self.menu.set_title('Difficulty')

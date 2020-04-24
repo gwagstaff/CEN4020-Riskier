@@ -4,6 +4,7 @@ try:
     import random
     import sys
     import time
+    import os
     from classes.troop import Troop
     from components.actionbar import ActionBar
     from components.menubar import MenuBar
@@ -29,6 +30,12 @@ class Board(object):
         self.topright = (int(self.x + self.size / 4), int(self.y - self.size / 4))
         self.bottomleft = (int(self.x - self.size / 4), int(self.y + self.size / 4))
         self.bottomright = (int(self.x + self.size / 4), int(self.y + self.size / 4))
+
+        ###########Music#######
+        self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'sot.wav'))
+        self.bg_player = pygame.mixer.music.play(-1)
+        #######################
+
 
     def render(self, surface):
         pygame.draw.line(surface, pygame.Color("black"), self.top, self.right)
@@ -69,6 +76,8 @@ class BattleScreen(GameState):
                                     pygame.display.get_surface().get_width(), 120,
                                     ['Attack', 'Defend', 'Move Troops', 'End Turn', 'Flee'], font_size=26)
         self.menu_bar = MenuBar(0, 0, pygame.display.get_surface().get_width(), 40, middle='Select Move')
+
+
         # flags
         self.turn = 0  # 0 == user, 1 == ai
         self.new_round = True  # flag for determining new rounds
@@ -149,6 +158,7 @@ class BattleScreen(GameState):
         # FLEE button
         elif self.turn == 0 and self.action_bar.get_event(event) == 'Flee':
             self.fleeing = True
+            self.bg_player = pygame.mixer.music.stop()
             self.persist_state()
             self.done = True
 

@@ -40,6 +40,7 @@ class InitialScreen(GameState):
         # timer for basic things
         self.end_time = time.time()
 
+
     def get_event(self, event):
         # close window
         if event.type == pygame.QUIT:
@@ -132,6 +133,11 @@ class InitialScreen(GameState):
 
     def startup(self, persistent):
         self.persist['difficulty'] = persistent['difficulty']
+
+        ###########Music#######
+        self.bg_music = pygame.mixer.music.load(os.path.join('audio', 'kalimbaRelaxation.wav'))
+        self.bg_player = pygame.mixer.music.play(-1)
+        #######################
 
     def persist_state(self):
         self.persist['player'] = self.player
